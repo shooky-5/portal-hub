@@ -4,16 +4,14 @@ import { createToken } from '@/lib/auth';
 
 /**
  * POST /api/auth/login
- * Auto-login demo user (demo mode - no password enforcement yet)
+ * Login with email (password optional for now - accepts any email)
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email = 'demo@armory.gov', auto = true } = body;
+    const { email, password } = body;
 
-    // For now, just auto-login the demo user
-    // In future, we can add password validation here
-    if (!auto && !email) {
+    if (!email) {
       return NextResponse.json(
         { error: 'Email is required' },
         { status: 400 }
@@ -27,9 +25,34 @@ export async function POST(request: NextRequest) {
     );
 
     if (result.rows.length === 0) {
+      // For now, create user on first login if they provide email
+      // In production, you'd validate password against hashed password
+      await query(
+        `INSERT INTO users
+         (email, full_name, org_unit, classification_level)
+         VALUES ($1, $2, $3, $4)`,
+        [email, email.split('@')[0].toUpperCase(), 'Analyst', 'UNCLASSIFIED']
+      );
+
+      const newResult = await query(
+        'SELECT * FROM users WHERE email = $1',
+        [email]
+      );
+      const newUser = newResult.rows[0];
+      const token = createToken(newUser.id, newUser.email);
+
       return NextResponse.json(
-        { error: 'User not found' },
-        { status: 401 }
+        {
+          token,
+          user: {
+            id: newUser.id,
+            email: newUser.email,
+            fullName: newUser.full_name,
+            orgUnit: newUser.org_unit,
+            classificationLevel: newUser.classification_level,
+          },
+        },
+        { status: 200 }
       );
     }
 

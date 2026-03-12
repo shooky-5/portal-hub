@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       `UPDATE apps
        SET name = $1, full_name = $2, url = $3
        WHERE id = $4`,
-      ['XRL Compass', 'XRL Compass — Adversarial Analysis', 'https://compass.analyticarmory.com/', 'xrl']
+      ['xRL Compass', 'xRL Compass', 'https://compass.analyticarmory.com/', 'xrl']
     );
 
     console.log('✅ XRL app updated');

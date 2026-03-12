@@ -898,16 +898,20 @@ export function PortalApp() {
   const [isDark, setIsDark] = useState(false);
   const [activeNav, setActiveNav] = useState<'armory' | 'sessions' | 'status' | 'settings'>('armory');
   const [loginAttempt, setLoginAttempt] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
   const T = isDark ? THEMES.dark : THEMES.light;
   const toggle = () => setIsDark((d) => !d);
 
-  const handleLogin = async () => {
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setLoginAttempt(true);
     try {
-      await login('demo@armory.gov');
+      await login(loginEmail, loginPassword);
     } catch (err) {
       console.error('Login failed:', err);
+      setLoginAttempt(false);
     }
   };
 
@@ -969,33 +973,76 @@ export function PortalApp() {
             </div>
           )}
 
-          <button
-            onClick={handleLogin}
-            disabled={loginAttempt}
-            style={{
-              width: '100%',
-              padding: '12px 24px',
-              background: T.accent,
-              color: '#FFF',
-              border: 'none',
-              borderRadius: 6,
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: loginAttempt ? 'not-allowed' : 'pointer',
-              opacity: loginAttempt ? 0.7 : 1,
-              transition: 'all 200ms ease-in-out',
-            }}
-            onMouseEnter={(e) => {
-              if (!loginAttempt) {
-                (e.target as HTMLButtonElement).style.background = T.accentHov;
-              }
-            }}
-            onMouseLeave={(e) => {
-              (e.target as HTMLButtonElement).style.background = T.accent;
-            }}
-          >
-            {loginAttempt ? 'Signing In...' : 'Sign In as Demo User'}
-          </button>
+          <form onSubmit={handleLogin} style={{ width: '100%' }}>
+            <input
+              type="email"
+              placeholder="Email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              disabled={loginAttempt}
+              required
+              style={{
+                width: '100%',
+                padding: '12px',
+                marginBottom: 12,
+                background: T.inputBg,
+                border: `1px solid ${T.border}`,
+                borderRadius: 6,
+                color: T.textPri,
+                fontSize: 14,
+                transition: 'all 200ms ease-in-out',
+                boxSizing: 'border-box',
+              }}
+            />
+
+            <input
+              type="password"
+              placeholder="Password (optional)"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              disabled={loginAttempt}
+              style={{
+                width: '100%',
+                padding: '12px',
+                marginBottom: 20,
+                background: T.inputBg,
+                border: `1px solid ${T.border}`,
+                borderRadius: 6,
+                color: T.textPri,
+                fontSize: 14,
+                transition: 'all 200ms ease-in-out',
+                boxSizing: 'border-box',
+              }}
+            />
+
+            <button
+              type="submit"
+              disabled={loginAttempt || !loginEmail}
+              style={{
+                width: '100%',
+                padding: '12px 24px',
+                background: T.accent,
+                color: '#FFF',
+                border: 'none',
+                borderRadius: 6,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: loginAttempt || !loginEmail ? 'not-allowed' : 'pointer',
+                opacity: loginAttempt || !loginEmail ? 0.7 : 1,
+                transition: 'all 200ms ease-in-out',
+              }}
+              onMouseEnter={(e) => {
+                if (!loginAttempt && loginEmail) {
+                  (e.target as HTMLButtonElement).style.background = T.accentHov;
+                }
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLButtonElement).style.background = T.accent;
+              }}
+            >
+              {loginAttempt ? 'Signing In...' : 'Sign In'}
+            </button>
+          </form>
         </div>
       </div>
     );

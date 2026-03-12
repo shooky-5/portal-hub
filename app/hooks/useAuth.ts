@@ -15,26 +15,23 @@ export interface UseAuthReturn {
   isLoading: boolean;
   error: string | null;
   isAuthenticated: boolean;
-  login: (email?: string) => Promise<void>;
+  login: (email: string, password?: string) => Promise<void>;
   logout: () => void;
 }
 
 /**
  * useAuth hook - handles authentication and user state
- * Auto-logs in demo user on mount
+ * Requires explicit login - no auto-login
  */
 export function useAuth(): UseAuthReturn {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Auto-login on mount
+  // Check for stored token on mount only
   useEffect(() => {
-    const autoLogin = async () => {
+    const checkStoredToken = async () => {
       try {
-        setIsLoading(true);
-
-        // Check if we have a stored token
         const storedToken = localStorage.getItem('sessionToken');
 
         if (storedToken) {
@@ -61,52 +58,41 @@ export function useAuth(): UseAuthReturn {
           }
         }
 
-        // No valid token, try auto-login with demo user
-        const loginResponse = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: 'demo@armory.gov', auto: true }),
-        });
-
-        if (loginResponse.ok) {
-          const data = await loginResponse.json();
-          localStorage.setItem('sessionToken', data.token);
-          setCurrentUser(data.user);
-          setError(null);
-        } else {
-          setError('Failed to authenticate');
-        }
+        // No valid token - user needs to login
+        setIsLoading(false);
       } catch (err) {
-        console.error('Auth error:', err);
-        setError(
-          err instanceof Error ? err.message : 'Authentication failed'
-        );
-      } finally {
+        console.error('Auth check error:', err);
         setIsLoading(false);
       }
     };
 
-    autoLogin();
+    checkStoredToken();
   }, []);
 
-  const login = async (email: string = 'demo@armory.gov') => {
+  const login = async (email: string, password?: string) => {
     try {
       setIsLoading(true);
       setError(null);
 
+      if (!email) {
+        throw new Error('Email is required');
+      }
+
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
-        throw new Error('Login failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed');
       }
 
       const data = await response.json();
       localStorage.setItem('sessionToken', data.token);
       setCurrentUser(data.user);
+      setError(null);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Login failed';
