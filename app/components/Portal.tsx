@@ -895,7 +895,10 @@ const NAV = [
 
 export function PortalApp() {
   const { currentUser, isLoading, isAuthenticated, logout, login, error: authError } = useAuth();
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
   const [activeNav, setActiveNav] = useState<'armory' | 'sessions' | 'status' | 'settings'>('armory');
   const [loginAttempt, setLoginAttempt] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
