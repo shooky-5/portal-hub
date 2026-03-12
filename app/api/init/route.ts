@@ -8,16 +8,8 @@ import { initializeDatabase } from '@/lib/db/seed';
  */
 export async function POST(request: NextRequest) {
   try {
-    // Check if we should allow initialization
-    // In production, you might want to check a flag or environment variable
-    const allowInit = process.env.NODE_ENV === 'development';
-
-    if (!allowInit) {
-      return NextResponse.json(
-        { error: 'Initialization not allowed in this environment' },
-        { status: 403 }
-      );
-    }
+    // Allow initialization in all environments for initial setup
+    // TODO: Add security check (e.g., API key) for production use
 
     console.log('🚀 Starting database initialization...');
     await initializeDatabase();
