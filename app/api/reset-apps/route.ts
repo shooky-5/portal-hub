@@ -52,6 +52,16 @@ const APPS = [
     color: '#10B981',
     icon: 'radio',
   },
+  {
+    id: 'spycraft',
+    name: 'Spycraft',
+    full: 'Adversarial Scenario Simulation',
+    desc: 'Structured red cell exercises to stress-test conclusions and surface cognitive blind spots.',
+    status: 'under_development',
+    url: '#',
+    color: '#8B5CF6',
+    icon: 'triangle',
+  },
 ];
 
 async function resetApps() {
@@ -74,7 +84,7 @@ async function resetApps() {
   console.log('✅ Apps reset successfully');
   return {
     success: true,
-    message: 'Apps reset: DIOS & xRL Compass (Active), TRIZoning, Agent Sourcing, Tech Radar (Under Development)',
+    message: 'Apps reset: DIOS & xRL Compass (Active), TRIZoning, Agent Sourcing, Tech Radar, Spycraft (Under Development)',
     apps: APPS.map((a) => ({ id: a.id, name: a.name, status: a.status })),
   };
 }

@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
           WHEN id = 'trizoning' THEN 2
           WHEN id = 'agent-sourcing' THEN 3
           WHEN id = 'tech-radar' THEN 4
+          WHEN id = 'spycraft' THEN 5
           ELSE 999
         END ASC`
     );

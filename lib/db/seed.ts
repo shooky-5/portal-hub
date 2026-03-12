@@ -134,6 +134,16 @@ async function seedApps() {
       color: '#10B981',
       icon: 'radio',
     },
+    {
+      id: 'spycraft',
+      name: 'Spycraft',
+      full: 'Adversarial Scenario Simulation',
+      desc: 'Structured red cell exercises to stress-test conclusions and surface cognitive blind spots.',
+      status: 'under_development',
+      url: '#',
+      color: '#8B5CF6',
+      icon: 'triangle',
+    },
   ];
 
   for (const app of apps) {
