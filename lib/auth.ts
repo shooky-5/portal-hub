@@ -36,9 +36,18 @@ export function verifyToken(token: string): JWTPayload | null {
 export function getTokenFromRequest(
   req: Request | { headers: Record<string, string> }
 ): string | null {
-  const headers =
-    'headers' in req ? req.headers : Object.fromEntries(req.headers);
-  const authHeader = headers['authorization'] || '';
+  let authHeader = '';
+
+  if ('headers' in req) {
+    if (typeof req.headers.get === 'function') {
+      // NextRequest - headers is a Headers object
+      authHeader = req.headers.get('authorization') || '';
+    } else {
+      // Plain object with headers
+      authHeader = (req.headers as Record<string, string>)['authorization'] || '';
+    }
+  }
+
   const match = authHeader.match(/^Bearer\s+(.+)$/);
   return match ? match[1] : null;
 }
