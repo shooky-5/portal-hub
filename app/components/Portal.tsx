@@ -98,6 +98,44 @@ const useTheme = () => {
   return ctx;
 };
 
+/**
+ * LogoMark - Shield-shaped logo with security theme
+ */
+function LogoMark({
+  height = 20,
+  stroke = '#60A5FA',
+  fill = 'rgba(96,165,250,0.07)',
+  ring = 'rgba(96,165,250,0.18)',
+}: {
+  height?: number;
+  stroke?: string;
+  fill?: string;
+  ring?: string;
+}) {
+  const w = height * (30 / 40);
+  return (
+    <svg width={w} height={height} viewBox="0 0 30 40" fill="none" aria-hidden="true">
+      <path
+        d="M15 1.5L28.5 6.5V24C28.5 31.5 15 38.5 15 38.5C15 38.5 1.5 31.5 1.5 24V6.5L15 1.5Z"
+        fill={fill}
+        stroke={stroke}
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15 5.5L25 9.5V23C25 28.5 15 34 15 34C15 34 5 28.5 5 23V9.5L15 5.5Z"
+        fill="none"
+        stroke={ring}
+        strokeWidth="0.8"
+        strokeLinejoin="round"
+      />
+      <line x1="8.5" y1="15" x2="21.5" y2="15" stroke={stroke} strokeWidth="2" strokeLinecap="round" />
+      <line x1="10.5" y1="21" x2="19.5" y2="21" stroke={stroke} strokeWidth="2" strokeLinecap="round" opacity="0.65" />
+      <line x1="13" y1="27" x2="17" y2="27" stroke={stroke} strokeWidth="2" strokeLinecap="round" opacity="0.35" />
+    </svg>
+  );
+}
+
 // ── ICONS ────────────────────────────────────────────────────────────────
 const ICONS: { [key: string]: string | string[] } = {
   home: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10',
@@ -1078,11 +1116,7 @@ export function PortalApp() {
           {/* Logo */}
           <div style={{ padding: '20px 24px', borderBottom: `1px solid ${T.border}` }}>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 12 }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="1" stroke={T.logoStroke} strokeWidth="2" />
-                <circle cx="12" cy="12" r="5" fill={T.logoFill} stroke={T.logoStroke} strokeWidth="1.5" />
-                <circle cx="12" cy="12" r="9" fill="none" stroke={T.logoStroke} strokeWidth="1" opacity="0.3" />
-              </svg>
+              <LogoMark height={24} stroke={T.logoStroke} fill={T.logoFill} ring={T.logoRing} />
               <div style={{ fontWeight: 600, fontSize: 13, letterSpacing: '0.02em' }}>
                 Analytic<br />
                 Armory
