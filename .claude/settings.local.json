@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init -y)",
+      "Bash(npm install next@14 react@18 react-dom@18)"
+    ]
+  }
+}

@@ -1,0 +1,1620 @@
+'use client';
+
+import { useState, useEffect, useContext, createContext, ReactNode } from 'react';
+
+// ── THEME TOKENS ─────────────────────────────────────────────────────────
+const THEMES = {
+  dark: {
+    mode: 'dark',
+    bgPage: '#0F172A',
+    bgSurface: '#1E293B',
+    bgElev: '#334155',
+    border: '#475569',
+    textPri: '#F8FAFC',
+    textSec: '#94A3B8',
+    accent: '#60A5FA',
+    accentHov: '#3B82F6',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#F43F5E',
+    sidebarBg: '#1E293B',
+    headerBg: '#0F172A',
+    inputBg: '#334155',
+    logoStroke: '#60A5FA',
+    logoFill: 'rgba(96,165,250,0.07)',
+    logoRing: 'rgba(96,165,250,0.18)',
+  },
+  light: {
+    mode: 'light',
+    bgPage: '#F0F4FA',
+    bgSurface: '#FFFFFF',
+    bgElev: '#EBF2FB',
+    border: '#C0CEDF',
+    textPri: '#1A2B42',
+    textSec: '#5A7490',
+    accent: '#2E75B6',
+    accentHov: '#1A4670',
+    success: '#2E7D32',
+    warning: '#B45309',
+    error: '#C62828',
+    sidebarBg: '#1F3864',
+    headerBg: '#FFFFFF',
+    inputBg: '#FFFFFF',
+    logoStroke: '#FFFFFF',
+    logoFill: 'rgba(255,255,255,0.07)',
+    logoRing: 'rgba(255,255,255,0.18)',
+  },
+};
+
+const P_ACCENTS = {
+  dark: ['#60A5FA', '#93C5FD', '#3B82F6', '#BFDBFE', '#60A5FA'],
+  light: ['#2E75B6', '#1A4670', '#1F3864', '#2E75B6', '#0F1D34'],
+};
+
+interface ThemeContextType {
+  T: typeof THEMES.dark;
+  isDark: boolean;
+  toggle: () => void;
+}
+
+const ThemeCtx = createContext<ThemeContextType | undefined>(undefined);
+const useTheme = () => {
+  const ctx = useContext(ThemeCtx);
+  if (!ctx) throw new Error('useTheme must be used inside ThemeProvider');
+  return ctx;
+};
+
+// ── ICONS ────────────────────────────────────────────────────────────────
+const ICONS: { [key: string]: string | string[] } = {
+  home: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10',
+  clock: 'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M12 6v6l4 2',
+  activity: 'M22 12h-4l-3 9L9 3l-3 9H2',
+  settings: [
+    'M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16z',
+    'M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+    'M12 2v2 M12 20v2 M4.93 4.93l1.41 1.41 M17.66 17.66l1.41 1.41 M2 12h2 M20 12h2 M4.93 19.07l1.41-1.41 M17.66 6.34l1.41-1.41',
+  ],
+  logout: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9',
+  layers: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
+  compass: ['M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z', 'M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z'],
+  network: 'M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18',
+  barchart: 'M18 20V10 M12 20V4 M6 20v-6',
+  radio: ['M4.9 19.1C1 15.2 1 8.8 4.9 4.9', 'M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5', 'M12 12h.01', 'M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5', 'M19.1 4.9C23 8.8 23 15.2 19.1 19.1'],
+  shield: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+  chevron: 'M9 18l6-6-6-6',
+  triangle: 'M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z M12 9v4 M12 17h.01',
+  check: ['M22 11.08V12a10 10 0 1 1-5.93-9.14', 'M22 4L12 14.01l-3-3'],
+  info: ['M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z', 'M12 16v-4', 'M12 8h.01'],
+  sun: [
+    'M12 1v2 M12 21v2 M4.22 4.22l1.42 1.42 M18.36 18.36l1.42 1.42 M1 12h2 M21 12h2 M4.22 19.78l1.42-1.42 M18.36 5.64l1.42-1.42',
+    'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z',
+  ],
+  moon: 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z',
+};
+
+interface IconProps {
+  path: string | string[];
+  size?: number;
+  color?: string;
+  style?: React.CSSProperties;
+}
+
+const Icon: React.FC<IconProps> = ({ path, size = 16, color = 'currentColor', style: s = {} }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    style={{ flexShrink: 0, ...s }}
+  >
+    {Array.isArray(path) ? path.map((d, i) => <path key={i} d={d} />) : <path d={path} />}
+  </svg>
+);
+
+// ── THEME TOGGLE ─────────────────────────────────────────────────────────
+function ThemeToggle({ onDark = false }: { onDark?: boolean }) {
+  const { isDark, toggle } = useTheme();
+  const [hov, setHov] = useState(false);
+  const fg = onDark ? (hov ? '#F8FAFC' : 'rgba(255,255,255,0.5)') : hov ? '#1A2B42' : '#5A7490';
+  const border = onDark ? (hov ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.15)') : hov ? '#2E75B6' : '#C0CEDF';
+  const bg = onDark ? (hov ? 'rgba(255,255,255,0.08)' : 'transparent') : hov ? '#EBF2FB' : 'transparent';
+
+  return (
+    <button
+      onClick={toggle}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        background: bg,
+        border: `1px solid ${border}`,
+        borderRadius: 20,
+        padding: '5px 12px',
+        cursor: 'pointer',
+        fontFamily: "'Outfit',sans-serif",
+        fontSize: 11,
+        fontWeight: 500,
+        letterSpacing: '0.08em',
+        color: fg,
+        transition: 'all 200ms ease-in-out',
+      }}
+    >
+      <Icon path={isDark ? ICONS.sun : ICONS.moon} size={13} color="currentColor" />
+      {isDark ? 'Light' : 'Dark'}
+    </button>
+  );
+}
+
+// ── LOGO ─────────────────────────────────────────────────────────────────
+function LogoMark({
+  height = 44,
+  stroke = '#60A5FA',
+  fill = 'rgba(96,165,250,0.07)',
+  ring = 'rgba(96,165,250,0.18)',
+}: {
+  height?: number;
+  stroke?: string;
+  fill?: string;
+  ring?: string;
+}) {
+  const w = height * (30 / 40);
+  return (
+    <svg width={w} height={height} viewBox="0 0 30 40" fill="none" aria-hidden="true">
+      <path
+        d="M15 1.5L28.5 6.5V24C28.5 31.5 15 38.5 15 38.5C15 38.5 1.5 31.5 1.5 24V6.5L15 1.5Z"
+        fill={fill}
+        stroke={stroke}
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15 5.5L25 9.5V23C25 28.5 15 34 15 34C15 34 5 28.5 5 23V9.5L15 5.5Z"
+        fill="none"
+        stroke={ring}
+        strokeWidth="0.8"
+        strokeLinejoin="round"
+      />
+      <line x1="8.5" y1="15" x2="21.5" y2="15" stroke={stroke} strokeWidth="2" strokeLinecap="round" />
+      <line x1="10.5" y1="21" x2="19.5" y2="21" stroke={stroke} strokeWidth="2" strokeLinecap="round" opacity="0.65" />
+      <line x1="13" y1="27" x2="17" y2="27" stroke={stroke} strokeWidth="2" strokeLinecap="round" opacity="0.35" />
+    </svg>
+  );
+}
+
+function Logo({ variant = 'stacked', markHeight = 44 }: { variant?: string; markHeight?: number }) {
+  const { T } = useTheme();
+  if (variant === 'stacked')
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+        <LogoMark height={markHeight} stroke={T.logoStroke} fill={T.logoFill} ring={T.logoRing} />
+        <div style={{ textAlign: 'center' }}>
+          <div
+            style={{
+              fontSize: 20,
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: '#F8FAFC',
+              lineHeight: 1,
+            }}
+          >
+            Analytic Armory
+          </div>
+          <div
+            style={{
+              fontSize: 10,
+              fontWeight: 500,
+              letterSpacing: '0.26em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.42)',
+              marginTop: 6,
+            }}
+          >
+            Decision Intelligence Platform
+          </div>
+        </div>
+        <div
+          style={{
+            width: 36,
+            height: 1.5,
+            background: T.logoStroke,
+            borderRadius: 1,
+            opacity: 0.6,
+          }}
+        />
+      </div>
+    );
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <LogoMark height={markHeight} stroke={T.logoStroke} fill={T.logoFill} ring={T.logoRing} />
+      <div>
+        <div
+          style={{
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: '#F8FAFC',
+            lineHeight: 1.2,
+          }}
+        >
+          Analytic
+          <br />
+          Armory
+        </div>
+        <div
+          style={{
+            fontSize: 9,
+            fontWeight: 500,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.38)',
+            marginTop: 4,
+          }}
+        >
+          Decision Intelligence
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── APP DATA ─────────────────────────────────────────────────────────────
+const APPS = [
+  {
+    id: 'dios',
+    name: 'DIOS',
+    full: 'Decision Intelligence Operating System',
+    desc: 'Selects, executes, and adversarially challenges analytical frameworks through structured agent panels.',
+    color: '#3B82F6',
+    icon: 'layers',
+    lastRun: '2h ago',
+    url: 'https://dios.analyticarmory.com',
+  },
+  {
+    id: 'compass',
+    name: 'xRL Compass',
+    full: 'Technology Assessment Intelligence',
+    desc: 'Structured evaluation of emerging technologies against strategic and operational criteria.',
+    color: '#10B981',
+    icon: 'compass',
+    lastRun: '4h ago',
+    url: 'https://compass.analyticarmory.com',
+  },
+  {
+    id: 'trizoning',
+    name: 'TRIZoning',
+    full: 'Technology Dependency Mapping',
+    desc: 'Identifies cascade risks between tech domains before they manifest as strategic surprises.',
+    color: '#F59E0B',
+    icon: 'network',
+    lastRun: '1d ago',
+    url: '#',
+  },
+  {
+    id: 'forecasting',
+    name: 'Forecasting Crowds',
+    full: 'Probabilistic Assessment Engine',
+    desc: 'Multiple AI models plus invited human experts generate calibrated forecasts.',
+    color: '#8B5CF6',
+    icon: 'barchart',
+    lastRun: '6h ago',
+    url: '#',
+  },
+  {
+    id: 'techradar',
+    name: 'Tech Radar',
+    full: 'Emerging Technology Early Warning',
+    desc: 'Continuous identification of high-signal trends with structured opportunity and risk assessments.',
+    color: '#F43F5E',
+    icon: 'radio',
+    lastRun: '3h ago',
+    url: '#',
+  },
+  {
+    id: 'spycraft',
+    name: 'Spycraft',
+    full: 'Adversarial Scenario Simulation',
+    desc: 'Structured red cell exercises to stress-test conclusions and surface cognitive blind spots.',
+    color: '#06B6D4',
+    icon: 'shield',
+    lastRun: '12h ago',
+    url: '#',
+  },
+];
+
+const SESSIONS = [
+  {
+    app: 'DIOS',
+    topic: 'Iran proliferation pathways — ACH run',
+    user: 'A. CHEN',
+    time: '2h ago',
+    pillar: '#3B82F6',
+  },
+  {
+    app: 'Forecasting Crowds',
+    topic: 'Q3 Indo-Pacific stability forecast',
+    user: 'M. OKAFOR',
+    time: '4h ago',
+    pillar: '#8B5CF6',
+  },
+  {
+    app: 'Tech Radar',
+    topic: 'Hypersonic glide vehicle detection — early signal',
+    user: 'R. VASQUEZ',
+    time: '6h ago',
+    pillar: '#F43F5E',
+  },
+  {
+    app: 'xRL Compass',
+    topic: 'Clean energy storage tech assessment',
+    user: 'S. PARK',
+    time: '1d ago',
+    pillar: '#10B981',
+  },
+  {
+    app: 'Spycraft',
+    topic: 'Red cell: adversary SATCOM denial scenarios',
+    user: 'T. IBRAHIM',
+    time: '1d ago',
+    pillar: '#06B6D4',
+  },
+];
+
+const STATUS_ITEMS = [
+  {
+    label: 'Agentic Framework',
+    state: 'operational',
+    note: 'All agent panels responding',
+  },
+  {
+    label: 'Data Integrity Layer',
+    state: 'operational',
+    note: 'Provenance checks passing',
+  },
+  {
+    label: 'Georgetown Red Cell Lab',
+    state: 'operational',
+    note: '7 active capstone sessions',
+  },
+  {
+    label: 'Model Ensemble',
+    state: 'degraded',
+    note: 'Forecasting latency elevated — investigating',
+  },
+  {
+    label: 'Audit Log',
+    state: 'operational',
+    note: 'All sessions recorded',
+  },
+];
+
+const NAV = [
+  { id: 'armory', label: 'The Armory', icon: 'home' },
+  { id: 'sessions', label: 'Recent Sessions', icon: 'clock' },
+  { id: 'status', label: 'Platform Status', icon: 'activity' },
+  { id: 'settings', label: 'Settings', icon: 'settings' },
+];
+
+const PRINCIPLES = [
+  {
+    label: 'Transparency',
+    note: 'Every conclusion traces to its source',
+    icon: 'info',
+  },
+  {
+    label: 'Structured Challenge',
+    note: 'Dissent is built into the architecture',
+    icon: 'triangle',
+  },
+  {
+    label: 'Human Authority',
+    note: 'Analysts decide. AI executes.',
+    icon: 'shield',
+  },
+  {
+    label: 'Data Integrity',
+    note: 'Confidence levels are always visible',
+    icon: 'check',
+  },
+  {
+    label: 'Context First',
+    note: 'Configured to your mission — no generic outputs',
+    icon: 'compass',
+  },
+];
+
+// ── SHARED COMPONENTS ────────────────────────────────────────────────────
+interface PageHeaderProps {
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+}
+
+function PageHeader({ eyebrow, title, subtitle }: PageHeaderProps) {
+  const { T } = useTheme();
+  return (
+    <div style={{ marginBottom: 36 }}>
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 500,
+          letterSpacing: '0.2em',
+          textTransform: 'uppercase',
+          color: T.accent,
+          marginBottom: 10,
+        }}
+      >
+        {eyebrow}
+      </div>
+      <h1
+        style={{
+          fontFamily: "'Outfit',sans-serif",
+          fontSize: 28,
+          fontWeight: 700,
+          color: T.textPri,
+          letterSpacing: '-0.01em',
+          marginBottom: subtitle ? 8 : 0,
+        }}
+      >
+        {title}
+      </h1>
+      {subtitle && (
+        <p
+          style={{
+            fontFamily: "'Newsreader',serif",
+            fontSize: 15,
+            fontStyle: 'italic',
+            color: T.textSec,
+            lineHeight: 1.65,
+            maxWidth: 540,
+          }}
+        >
+          {subtitle}
+        </p>
+      )}
+      <div
+        style={{
+          marginTop: 24,
+          height: 1,
+          background: `linear-gradient(to right,${T.border},transparent)`,
+        }}
+      />
+    </div>
+  );
+}
+
+interface AppCardProps {
+  app: (typeof APPS)[0];
+  delay: number;
+}
+
+function AppCard({ app, delay }: AppCardProps) {
+  const { T } = useTheme();
+  const [hov, setHov] = useState(false);
+  const [vis, setVis] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setVis(true), delay);
+    return () => clearTimeout(t);
+  }, [delay]);
+
+  const handleClick = () => {
+    if (app.url && app.url !== '#') {
+      window.open(app.url, '_blank');
+    }
+  };
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={`Launch ${app.name}: ${app.full}`}
+      onClick={handleClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      onFocus={() => setHov(true)}
+      onBlur={() => setHov(false)}
+      style={{
+        background: hov ? T.bgElev : T.bgSurface,
+        border: `1px solid ${hov ? app.color + '55' : T.border}`,
+        borderRadius: 8,
+        padding: '24px',
+        cursor: 'pointer',
+        transition: 'background 200ms ease-in-out,border-color 200ms ease-in-out,box-shadow 200ms ease-in-out',
+        position: 'relative',
+        overflow: 'hidden',
+        opacity: vis ? 1 : 0,
+        transform: vis ? 'translateY(0)' : 'translateY(10px)',
+        boxShadow: hov ? `0 4px 20px ${app.color}18` : 'none',
+        outline: 'none',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          background: app.color,
+          borderRadius: '8px 8px 0 0',
+          opacity: hov ? 1 : 0.4,
+          transition: 'opacity 200ms ease-in-out',
+        }}
+      />
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          marginBottom: 18,
+        }}
+      >
+        <div
+          style={{
+            width: 42,
+            height: 42,
+            background: app.color + '18',
+            border: `1px solid ${app.color}30`,
+            borderRadius: 4,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon path={ICONS[app.icon]} size={20} color={app.color} />
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 5,
+            fontSize: 11,
+            fontWeight: 500,
+            color: T.success,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+          }}
+        >
+          <svg width="6" height="6" viewBox="0 0 24 24" fill={T.success} aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+          ACTIVE
+        </div>
+      </div>
+      <div
+        style={{
+          fontFamily: "'Outfit',sans-serif",
+          fontSize: 16,
+          fontWeight: 600,
+          color: T.textPri,
+          marginBottom: 3,
+        }}
+      >
+        {app.name}
+      </div>
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 500,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          color: app.color,
+          marginBottom: 12,
+          opacity: 0.9,
+        }}
+      >
+        {app.full}
+      </div>
+      <div
+        style={{
+          fontFamily: "'Newsreader',serif",
+          fontSize: 14,
+          lineHeight: 1.65,
+          color: T.textSec,
+          marginBottom: 18,
+        }}
+      >
+        {app.desc}
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingTop: 14,
+          borderTop: `1px solid ${T.border}`,
+        }}
+      >
+        <span style={{ fontSize: 12, color: T.textSec }}>Last run: {app.lastRun}</span>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: hov ? app.color : T.textSec,
+            transition: 'color 200ms ease-in-out',
+          }}
+        >
+          Launch
+          <Icon
+            path={ICONS.chevron}
+            size={14}
+            color="currentColor"
+            style={{
+              transform: hov ? 'translateX(3px)' : 'translateX(0)',
+              transition: 'transform 200ms ease-in-out',
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── VIEWS ────────────────────────────────────────────────────────────────
+interface ArmoryViewProps {
+  userName: string;
+}
+
+function ArmoryView({ userName }: ArmoryViewProps) {
+  const { T, isDark } = useTheme();
+  const h = new Date().getHours();
+  const greeting = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  const name = userName.charAt(0) + userName.slice(1).toLowerCase().replace('.', ' ');
+  const pAccents = P_ACCENTS[isDark ? 'dark' : 'light'];
+
+  return (
+    <div style={{ padding: '40px 40px 64px' }}>
+      <PageHeader
+        eyebrow="Mission Applications"
+        title={`${greeting}, ${name}.`}
+        subtitle="Select a mission tool to begin structured analysis."
+      />
+      <div style={{ marginBottom: 32, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div
+          style={{
+            width: 3,
+            height: 16,
+            background: T.accent,
+            borderRadius: 2,
+            flexShrink: 0,
+          }}
+        />
+        <span
+          style={{
+            fontFamily: "'Newsreader',serif",
+            fontSize: 15,
+            fontStyle: 'italic',
+            color: T.textSec,
+          }}
+        >
+          Built on the premise that AI should challenge, not confirm.
+        </span>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 18 }}>
+        {APPS.map((a, i) => (
+          <AppCard key={a.id} app={a} delay={60 + i * 70} />
+        ))}
+      </div>
+      <div
+        style={{
+          marginTop: 48,
+          textAlign: 'center',
+          fontFamily: "'Newsreader',serif",
+          fontSize: 17,
+          fontStyle: 'italic',
+          color: T.textPri,
+          opacity: 0.6,
+        }}
+      >
+        If the mission requires a tool that does not exist here — we build it.
+      </div>
+
+      {/* Platform Principles */}
+      <div
+        style={{
+          marginTop: 52,
+          paddingTop: 32,
+          borderTop: `1px solid ${T.border}`,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 500,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: T.textSec,
+            marginBottom: 20,
+            textAlign: 'center',
+          }}
+        >
+          Platform Principles
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 12 }}>
+          {PRINCIPLES.map((p, i) => {
+            const col = pAccents[i];
+            return (
+              <div
+                key={i}
+                style={{
+                  background: isDark
+                    ? `linear-gradient(150deg,${col}14 0%,${T.bgSurface} 60%)`
+                    : `linear-gradient(150deg,${col}0E 0%,${T.bgSurface} 60%)`,
+                  border: `1px solid ${col}30`,
+                  borderTop: `3px solid ${col}`,
+                  borderRadius: 8,
+                  padding: '18px 14px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: -12,
+                    right: -12,
+                    width: 52,
+                    height: 52,
+                    borderRadius: '50%',
+                    background: col,
+                    opacity: isDark ? 0.07 : 0.04,
+                    pointerEvents: 'none',
+                  }}
+                />
+                <Icon path={ICONS[p.icon]} size={18} color={col} style={{ marginBottom: 10 }} />
+                <div
+                  style={{
+                    fontFamily: "'Outfit',sans-serif",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: col,
+                    marginBottom: 6,
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {p.label}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Newsreader',serif",
+                    fontSize: 12,
+                    fontStyle: 'italic',
+                    color: T.textSec,
+                    lineHeight: 1.55,
+                  }}
+                >
+                  {p.note}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SessionsView() {
+  const { T } = useTheme();
+  return (
+    <div style={{ padding: '40px 40px 64px' }}>
+      <PageHeader
+        eyebrow="Audit Trail"
+        title="Recent Sessions"
+        subtitle="All analytical sessions are logged. Conclusions are traceable to their reasoning chain and source data."
+      />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {SESSIONS.map((s, i) => (
+          <div
+            key={i}
+            role="button"
+            tabIndex={0}
+            aria-label={`Open session: ${s.topic}`}
+            style={{
+              background: T.bgSurface,
+              border: `1px solid ${T.border}`,
+              borderRadius: 8,
+              padding: '18px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 18,
+              cursor: 'pointer',
+              outline: 'none',
+              transition: 'background 200ms ease-in-out,border-color 200ms ease-in-out',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLDivElement).style.background = T.bgElev;
+              (e.currentTarget as HTMLDivElement).style.borderColor = s.pillar + '55';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLDivElement).style.background = T.bgSurface;
+              (e.currentTarget as HTMLDivElement).style.borderColor = T.border;
+            }}
+          >
+            <div
+              style={{
+                width: 3,
+                height: 40,
+                background: s.pillar,
+                borderRadius: 2,
+                flexShrink: 0,
+              }}
+            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: T.textPri,
+                  marginBottom: 3,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {s.topic}
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 500, color: T.textSec }}>{s.app}</div>
+            </div>
+            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+              <div style={{ fontSize: 12, color: T.textSec, marginBottom: 2 }}>{s.user}</div>
+              <div style={{ fontSize: 11, color: T.textSec, opacity: 0.65 }}>{s.time}</div>
+            </div>
+            <Icon path={ICONS.chevron} size={16} color={T.textSec} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StatusView() {
+  const { T } = useTheme();
+  const cfg = {
+    operational: { color: T.success, label: 'Operational', icon: 'check' },
+    degraded: { color: T.warning, label: 'Degraded', icon: 'triangle' },
+    outage: { color: T.error, label: 'Outage', icon: 'info' },
+  };
+  const overall = STATUS_ITEMS.some((s) => s.state === 'outage')
+    ? 'outage'
+    : STATUS_ITEMS.some((s) => s.state === 'degraded')
+      ? 'degraded'
+      : 'operational';
+  const oc = cfg[overall as keyof typeof cfg];
+
+  return (
+    <div style={{ padding: '40px 40px 64px' }}>
+      <PageHeader
+        eyebrow="Infrastructure"
+        title="Platform Status"
+        subtitle="Real-time status of all platform components. Confidence levels are always visible."
+      />
+      <div
+        style={{
+          background: T.bgSurface,
+          border: `1px solid ${oc.color}50`,
+          borderRadius: 8,
+          padding: '20px 24px',
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+        }}
+      >
+        <Icon path={ICONS[oc.icon]} size={20} color={oc.color} />
+        <div>
+          <div
+            style={{
+              fontFamily: "'Outfit',sans-serif",
+              fontSize: 14,
+              fontWeight: 600,
+              color: T.textPri,
+              marginBottom: 2,
+            }}
+          >
+            Overall System Health — <span style={{ color: oc.color }}>{oc.label}</span>
+          </div>
+          <div style={{ fontSize: 12, color: T.textSec }}>
+            {STATUS_ITEMS.filter((s) => s.state === 'operational').length} of {STATUS_ITEMS.length} components fully
+            operational
+          </div>
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {STATUS_ITEMS.map((item, i) => {
+          const c = cfg[item.state as keyof typeof cfg];
+          return (
+            <div
+              key={i}
+              style={{
+                background: T.bgSurface,
+                border: `1px solid ${T.border}`,
+                borderRadius: 8,
+                padding: '18px 24px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 14,
+              }}
+            >
+              <Icon path={ICONS[c.icon]} size={16} color={c.color} />
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontFamily: "'Outfit',sans-serif",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: T.textPri,
+                    marginBottom: 2,
+                  }}
+                >
+                  {item.label}
+                </div>
+                <div style={{ fontSize: 12, color: T.textSec }}>{item.note}</div>
+              </div>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  color: c.color,
+                  flexShrink: 0,
+                }}
+              >
+                {c.label}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+interface SettingsViewProps {
+  userName: string;
+}
+
+function SettingsView({ userName }: SettingsViewProps) {
+  const { T } = useTheme();
+  const fields = [
+    { label: 'Display Name', value: userName, id: 's-name' },
+    { label: 'Organisation Unit', value: 'Strategic Intel', id: 's-org' },
+    { label: 'Classification Level', value: 'UNCLASSIFIED', id: 's-class' },
+    { label: 'Notification Email', value: 'analyst@armory.gov', id: 's-email' },
+  ];
+
+  return (
+    <div style={{ padding: '40px 40px 64px' }}>
+      <PageHeader
+        eyebrow="Configuration"
+        title="Settings"
+        subtitle="Platform configuration for your analyst profile and session preferences."
+      />
+      <div
+        style={{
+          background: T.bgSurface,
+          border: `1px solid ${T.border}`,
+          borderRadius: 8,
+          padding: '28px',
+          maxWidth: 520,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+            color: T.textSec,
+            marginBottom: 24,
+          }}
+        >
+          Analyst Profile
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {fields.map((f) => (
+            <div key={f.id}>
+              <label
+                htmlFor={f.id}
+                style={{
+                  display: 'block',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  color: T.textSec,
+                  marginBottom: 8,
+                }}
+              >
+                {f.label}
+              </label>
+              <input
+                id={f.id}
+                type="text"
+                defaultValue={f.value}
+                style={{
+                  width: '100%',
+                  background: T.inputBg,
+                  border: `1px solid ${T.border}`,
+                  borderRadius: 4,
+                  padding: '11px 14px',
+                  color: T.textPri,
+                  fontSize: 14,
+                  fontFamily: "'Outfit',sans-serif",
+                  outline: 'none',
+                }}
+                onFocus={(e) => {
+                  e.target.style.outline = `2px solid ${T.accent}`;
+                  e.target.style.outlineOffset = '2px';
+                }}
+                onBlur={(e) => (e.target.style.outline = 'none')}
+              />
+            </div>
+          ))}
+        </div>
+        <button
+          style={{
+            marginTop: 28,
+            padding: '11px 24px',
+            background: T.accent,
+            border: 'none',
+            borderRadius: 4,
+            color: '#FFFFFF',
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            fontFamily: "'Outfit',sans-serif",
+            transition: 'background 200ms ease-in-out',
+          }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = T.accentHov)}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = T.accent)}
+        >
+          Save Changes
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── SIDEBAR ──────────────────────────────────────────────────────────────
+interface SidebarProps {
+  active: string;
+  onNav: (id: string) => void;
+  userName: string;
+  onLogout: () => void;
+}
+
+function Sidebar({ active, onNav, userName, onLogout }: SidebarProps) {
+  const { T } = useTheme();
+  const navActive = '#F8FAFC';
+  const navInactive = 'rgba(255,255,255,0.48)';
+  const navActiveBg = 'rgba(255,255,255,0.09)';
+  const navHovBg = 'rgba(255,255,255,0.05)';
+  const sideBorder = 'rgba(255,255,255,0.09)';
+
+  return (
+    <aside
+      aria-label="Primary navigation"
+      style={{
+        width: 220,
+        flexShrink: 0,
+        background: T.sidebarBg,
+        borderRight: `1px solid ${sideBorder}`,
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        position: 'sticky',
+        top: 0,
+        overflowY: 'auto',
+      }}
+    >
+      <div style={{ padding: '18px 16px 16px', borderBottom: `1px solid ${sideBorder}` }}>
+        <Logo variant="horizontal" markHeight={34} />
+      </div>
+      <nav style={{ flex: 1, padding: '12px 0' }}>
+        {NAV.map((n) => {
+          const isActive = active === n.id;
+          return (
+            <button
+              key={n.id}
+              onClick={() => onNav(n.id)}
+              aria-current={isActive ? 'page' : undefined}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 11,
+                padding: '11px 20px',
+                background: isActive ? navActiveBg : 'transparent',
+                border: 'none',
+                borderLeft: `2px solid ${isActive ? '#60A5FA' : 'transparent'}`,
+                color: isActive ? navActive : navInactive,
+                fontSize: 13,
+                fontWeight: isActive ? 600 : 400,
+                letterSpacing: '0.03em',
+                cursor: 'pointer',
+                textAlign: 'left',
+                fontFamily: "'Outfit',sans-serif",
+                transition: 'background 200ms ease-in-out,color 200ms ease-in-out',
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  (e.currentTarget as HTMLButtonElement).style.background = navHovBg;
+                  (e.currentTarget as HTMLButtonElement).style.color = navActive;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                  (e.currentTarget as HTMLButtonElement).style.color = navInactive;
+                }
+              }}
+            >
+              <Icon path={ICONS[n.icon]} size={16} color="currentColor" />
+              {n.label}
+            </button>
+          );
+        })}
+      </nav>
+      <div style={{ padding: '16px 20px', borderTop: `1px solid ${sideBorder}` }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: 11,
+            fontWeight: 500,
+            color: '#10B981',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            marginBottom: 10,
+          }}
+        >
+          <svg width="6" height="6" viewBox="0 0 24 24" fill="#10B981" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+          Session Active
+        </div>
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 600,
+            color: '#F8FAFC',
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            marginBottom: 12,
+          }}
+        >
+          {userName}
+        </div>
+        <div style={{ marginBottom: 10 }}>
+          <ThemeToggle onDark={true} />
+        </div>
+        <button
+          onClick={onLogout}
+          aria-label="Log out"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 7,
+            background: 'transparent',
+            border: '1px solid rgba(255,255,255,0.14)',
+            borderRadius: 4,
+            padding: '7px 12px',
+            width: '100%',
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.42)',
+            cursor: 'pointer',
+            fontFamily: "'Outfit',sans-serif",
+            transition: 'all 200ms ease-in-out',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.38)';
+            (e.currentTarget as HTMLButtonElement).style.color = '#F8FAFC';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.42)';
+          }}
+        >
+          <Icon path={ICONS.logout} size={14} color="currentColor" />
+          Log Out
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+// ── LOGIN ────────────────────────────────────────────────────────────────
+interface LoginProps {
+  onLogin: (name: string) => void;
+}
+
+function Login({ onLogin }: LoginProps) {
+  const { T, isDark } = useTheme();
+  const [user, setUser] = useState('');
+  const [pass, setPass] = useState('');
+  const [loading, setLoad] = useState(false);
+  const [error, setError] = useState('');
+  const [vis, setVis] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setVis(true), 60);
+  }, []);
+
+  const submit = (demo?: string) => {
+    const u = demo || user;
+    if (!demo && (!user || !pass)) {
+      setError('Credentials required.');
+      return;
+    }
+    setError('');
+    setLoad(true);
+    setTimeout(() => {
+      setLoad(false);
+      onLogin(u);
+    }, demo ? 600 : 1400);
+  };
+
+  const iStyle: React.CSSProperties = {
+    width: '100%',
+    background: T.inputBg,
+    border: `1px solid ${T.border}`,
+    borderRadius: 4,
+    padding: '11px 14px',
+    color: T.textPri,
+    fontSize: 14,
+    fontFamily: "'Outfit',sans-serif",
+    outline: 'none',
+  };
+
+  const lStyle: React.CSSProperties = {
+    display: 'block',
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    color: T.textSec,
+    marginBottom: 8,
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        background: T.bgPage,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: "'Outfit',sans-serif",
+        position: 'relative',
+      }}
+    >
+      {/* Toggle top-right */}
+      <div style={{ position: 'absolute', top: 20, right: 24 }}>
+        <ThemeToggle onDark={isDark} />
+      </div>
+
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 400,
+          padding: '0 24px',
+          opacity: vis ? 1 : 0,
+          transform: vis ? 'translateY(0)' : 'translateY(20px)',
+          transition: 'opacity 280ms ease-out,transform 280ms ease-out',
+        }}
+      >
+        {/* Logo panel — always navy bg so white mark stays legible */}
+        <div style={{ background: '#1F3864', borderRadius: '8px 8px 0 0', padding: '32px 28px 24px', display: 'flex', justifyContent: 'center' }}>
+          <Logo variant="stacked" markHeight={52} />
+        </div>
+
+        {/* Auth card */}
+        <div
+          style={{
+            background: T.bgSurface,
+            border: `1px solid ${T.border}`,
+            borderTop: 'none',
+            borderRadius: '0 0 8px 8px',
+            padding: '32px 28px',
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: T.textSec,
+              marginBottom: 28,
+            }}
+          >
+            Secure Access
+          </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <label htmlFor="uid" style={lStyle}>
+              User ID *
+            </label>
+            <input
+              id="uid"
+              type="text"
+              value={user}
+              aria-required="true"
+              onChange={(e) => setUser(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && submit()}
+              placeholder="analyst.id"
+              style={iStyle}
+              onFocus={(e) => {
+                e.target.style.outline = `2px solid ${T.accent}`;
+                e.target.style.outlineOffset = '2px';
+              }}
+              onBlur={(e) => (e.target.style.outline = 'none')}
+            />
+          </div>
+
+          <div style={{ marginBottom: 28 }}>
+            <label htmlFor="pw" style={lStyle}>
+              Passphrase *
+            </label>
+            <input
+              id="pw"
+              type="password"
+              value={pass}
+              aria-required="true"
+              onChange={(e) => setPass(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && submit()}
+              placeholder="••••••••••••"
+              style={iStyle}
+              onFocus={(e) => {
+                e.target.style.outline = `2px solid ${T.accent}`;
+                e.target.style.outlineOffset = '2px';
+              }}
+              onBlur={(e) => (e.target.style.outline = 'none')}
+            />
+          </div>
+
+          {error && (
+            <div
+              role="alert"
+              style={{
+                fontSize: 12,
+                color: T.error,
+                marginBottom: 16,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <svg width="8" height="8" viewBox="0 0 24 24" fill={T.error} aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+              </svg>
+              {error}
+            </div>
+          )}
+
+          <button
+            onClick={() => submit()}
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '13px',
+              background: loading ? T.bgElev : T.accent,
+              border: 'none',
+              borderRadius: 4,
+              color: loading ? T.textSec : '#FFFFFF',
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontFamily: "'Outfit',sans-serif",
+              transition: 'background 200ms ease-in-out,color 200ms ease-in-out',
+            }}
+          >
+            {loading ? 'AUTHENTICATING…' : 'ENTER THE ARMORY'}
+          </button>
+
+          <div
+            style={{
+              marginTop: 20,
+              paddingTop: 20,
+              borderTop: `1px solid ${T.border}`,
+              textAlign: 'center',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                color: T.textSec,
+                marginBottom: 10,
+                letterSpacing: '0.05em',
+              }}
+            >
+              Design preview — skip authentication
+            </div>
+            <button
+              onClick={() => submit('DEMO.ANALYST')}
+              style={{
+                background: 'transparent',
+                border: `1px solid ${T.border}`,
+                borderRadius: 4,
+                padding: '9px 20px',
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: T.textSec,
+                cursor: 'pointer',
+                fontFamily: "'Outfit',sans-serif",
+                transition: 'border-color 200ms ease-in-out,color 200ms ease-in-out',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = T.accent;
+                (e.currentTarget as HTMLButtonElement).style.color = T.accent;
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = T.border;
+                (e.currentTarget as HTMLButtonElement).style.color = T.textSec;
+              }}
+            >
+              View Portal →
+            </button>
+          </div>
+        </div>
+
+        <div
+          style={{
+            textAlign: 'center',
+            marginTop: 20,
+            fontSize: 11,
+            color: T.textSec,
+            letterSpacing: '0.08em',
+          }}
+        >
+          Restricted access. All sessions are logged.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── PORTAL SHELL ─────────────────────────────────────────────────────────
+interface PortalShellProps {
+  userName: string;
+  onLogout: () => void;
+}
+
+function PortalShell({ userName, onLogout }: PortalShellProps) {
+  const { T } = useTheme();
+  const [activeNav, setActiveNav] = useState('armory');
+
+  const views: { [key: string]: ReactNode } = {
+    armory: <ArmoryView userName={userName} />,
+    sessions: <SessionsView />,
+    status: <StatusView />,
+    settings: <SettingsView userName={userName} />,
+  };
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+        background: T.bgPage,
+        fontFamily: "'Outfit',sans-serif",
+      }}
+    >
+      <Sidebar active={activeNav} onNav={setActiveNav} userName={userName} onLogout={onLogout} />
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <header
+          style={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 50,
+            background: T.headerBg + 'F0',
+            backdropFilter: 'blur(12px)',
+            borderBottom: `1px solid ${T.border}`,
+            padding: '0 40px',
+            height: 50,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            gap: 20,
+          }}
+        >
+          {[
+            new Date().toLocaleDateString('en-US', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            }),
+            new Date().toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+            }) + ' LOCAL',
+            'UNCLASSIFIED',
+          ].map((item, i) => (
+            <span
+              key={i}
+              style={{
+                fontSize: 11,
+                fontWeight: 500,
+                color: T.textSec,
+                letterSpacing: '0.08em',
+              }}
+            >
+              {item}
+            </span>
+          ))}
+        </header>
+        <main style={{ flex: 1 }}>{views[activeNav]}</main>
+      </div>
+    </div>
+  );
+}
+
+// ── APP ROOT ─────────────────────────────────────────────────────────────
+export function PortalApp() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [isDark, setIsDark] = useState(false);
+
+  const T = isDark ? THEMES.dark : THEMES.light;
+  const toggle = () => setIsDark((d) => !d);
+
+  return (
+    <ThemeCtx.Provider value={{ T, isDark, toggle }}>
+      {loggedIn ? (
+        <PortalShell
+          userName={userName.toUpperCase()}
+          onLogout={() => {
+            setLoggedIn(false);
+            setUserName('');
+          }}
+        />
+      ) : (
+        <Login
+          onLogin={(name) => {
+            setUserName(name);
+            setLoggedIn(true);
+          }}
+        />
+      )}
+    </ThemeCtx.Provider>
+  );
+}
