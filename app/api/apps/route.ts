@@ -29,16 +29,16 @@ export async function GET(request: NextRequest) {
     const result = await query(
       `SELECT * FROM apps ORDER BY
         CASE
-          WHEN status = 'under_development' THEN 0
-          WHEN status = 'active' THEN 1
+          WHEN status = 'active' THEN 0
+          WHEN status = 'under_development' THEN 1
           ELSE 2
         END ASC,
         CASE
-          WHEN id = 'trizoning' THEN 0
-          WHEN id = 'forecasting' THEN 1
-          WHEN id = 'spycraft' THEN 2
-          WHEN id = 'dios' THEN 3
-          WHEN id = 'xrl' THEN 4
+          WHEN id = 'dios' THEN 0
+          WHEN id = 'xrl' THEN 1
+          WHEN id = 'trizoning' THEN 2
+          WHEN id = 'agent-sourcing' THEN 3
+          WHEN id = 'tech-radar' THEN 4
           ELSE 999
         END ASC`
     );

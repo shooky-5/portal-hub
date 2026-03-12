@@ -3,7 +3,7 @@ import { query } from '@/lib/db';
 
 /**
  * POST /api/reset-apps
- * Reset apps to only DIOS, xRL Compass, and TriZoning
+ * Reset apps with final configuration: DIOS & xRL Compass (active), TRIZoning, Agent Sourcing, Tech Radar (under development)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -12,38 +12,8 @@ export async function POST(request: NextRequest) {
     // Delete all existing apps
     await query('DELETE FROM apps');
 
-    // Insert the apps (under development first, active last)
+    // Insert the apps (active first, under development second)
     const apps = [
-      {
-        id: 'trizoning',
-        name: 'TriZoning',
-        full: 'TriZoning Consensus Framework',
-        desc: 'Three-zone analytical consensus building and debate resolution.',
-        status: 'under_development',
-        url: '#',
-        color: '#EC4899',
-        icon: 'network',
-      },
-      {
-        id: 'forecasting',
-        name: 'Forecasting',
-        full: 'Structured Forecasting Engine',
-        desc: 'Probabilistic forecasting with structured reasoning and confidence metrics.',
-        status: 'under_development',
-        url: '#',
-        color: '#F59E0B',
-        icon: 'barchart',
-      },
-      {
-        id: 'spycraft',
-        name: 'Spycraft',
-        full: 'Spycraft Collection Manager',
-        desc: 'Intelligence source management and tradecraft documentation.',
-        status: 'under_development',
-        url: '#',
-        color: '#10B981',
-        icon: 'radio',
-      },
       {
         id: 'dios',
         name: 'DIOS',
@@ -57,12 +27,42 @@ export async function POST(request: NextRequest) {
       {
         id: 'xrl',
         name: 'xRL Compass',
-        full: 'xRL Compass',
-        desc: 'Advanced red team and adversarial analysis platform.',
+        full: 'Technology Assessment Intelligence',
+        desc: 'Structured evaluation of emerging technologies against strategic and operational criteria.',
         status: 'active',
         url: 'https://compass.analyticarmory.com/',
         color: '#EF4444',
         icon: 'shield',
+      },
+      {
+        id: 'trizoning',
+        name: 'TRIZoning',
+        full: 'Technology Dependency Mapping',
+        desc: 'Identifies cascade risks between tech domains before they manifest as strategic surprises.',
+        status: 'under_development',
+        url: '#',
+        color: '#EC4899',
+        icon: 'network',
+      },
+      {
+        id: 'agent-sourcing',
+        name: 'Agent Sourcing',
+        full: 'Probabilistic Assessment Engine',
+        desc: 'Multiple AI models plus invited human experts generate calibrated forecasts.',
+        status: 'under_development',
+        url: '#',
+        color: '#F59E0B',
+        icon: 'barchart',
+      },
+      {
+        id: 'tech-radar',
+        name: 'Tech Radar',
+        full: 'Emerging Technology Early Warning',
+        desc: 'Continuous identification of high-signal trends with structured opportunity and risk assessments.',
+        status: 'under_development',
+        url: '#',
+        color: '#10B981',
+        icon: 'radio',
       },
     ];
 
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: 'Apps reset: DIOS & xRL Compass (Active), TriZoning, Forecasting, Spycraft (Under Development)',
+        message: 'Apps reset: DIOS & xRL Compass (Active), TRIZoning, Agent Sourcing, Tech Radar (Under Development)',
       },
       { status: 200 }
     );
