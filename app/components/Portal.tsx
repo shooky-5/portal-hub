@@ -1051,11 +1051,11 @@ export function PortalApp() {
     );
   }
 
-  const views: Record<string, React.ReactNode> = {
-    armory: <ArmoryView />,
-    sessions: <SessionsView />,
-    status: <StatusView />,
-    settings: <SettingsView />,
+  const viewComponents: Record<string, () => React.ReactNode> = {
+    armory: () => <ArmoryView key="armory" />,
+    sessions: () => <SessionsView key="sessions" />,
+    status: () => <StatusView key="status" />,
+    settings: () => <SettingsView key="settings" />,
   };
 
   return (
@@ -1230,7 +1230,7 @@ export function PortalApp() {
 
           {/* Content */}
           <main style={{ flex: 1, overflowY: 'auto' }}>
-            {views[activeNav]}
+            {viewComponents[activeNav]()}
           </main>
         </div>
       </div>
