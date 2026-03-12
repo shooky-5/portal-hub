@@ -30,12 +30,12 @@ export function getPool(): Pool {
   return pool;
 }
 
-export async function query<T = any>(
+export async function query(
   text: string,
   values?: any[]
-): Promise<QueryResult<T>> {
+): Promise<QueryResult<any>> {
   const pool = getPool();
-  return pool.query<T>(text, values);
+  return pool.query(text, values);
 }
 
 export async function getConnection() {
