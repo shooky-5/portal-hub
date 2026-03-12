@@ -12,28 +12,8 @@ export async function POST(request: NextRequest) {
     // Delete all existing apps
     await query('DELETE FROM apps');
 
-    // Insert the apps
+    // Insert the apps (under development first, active last)
     const apps = [
-      {
-        id: 'dios',
-        name: 'DIOS',
-        full: 'Decision Intelligence Operating System',
-        desc: 'Selects, executes, and adversarially challenges analytical frameworks through structured agent panels.',
-        status: 'active',
-        url: 'https://dios.analyticarmory.com',
-        color: '#3B82F6',
-        icon: 'layers',
-      },
-      {
-        id: 'xrl',
-        name: 'xRL Compass',
-        full: 'xRL Compass',
-        desc: 'Advanced red team and adversarial analysis platform.',
-        status: 'active',
-        url: 'https://compass.analyticarmory.com/',
-        color: '#EF4444',
-        icon: 'shield',
-      },
       {
         id: 'trizoning',
         name: 'TriZoning',
@@ -63,6 +43,26 @@ export async function POST(request: NextRequest) {
         url: '#',
         color: '#10B981',
         icon: 'radio',
+      },
+      {
+        id: 'dios',
+        name: 'DIOS',
+        full: 'Decision Intelligence Operating System',
+        desc: 'Selects, executes, and adversarially challenges analytical frameworks through structured agent panels.',
+        status: 'active',
+        url: 'https://dios.analyticarmory.com',
+        color: '#3B82F6',
+        icon: 'layers',
+      },
+      {
+        id: 'xrl',
+        name: 'xRL Compass',
+        full: 'xRL Compass',
+        desc: 'Advanced red team and adversarial analysis platform.',
+        status: 'active',
+        url: 'https://compass.analyticarmory.com/',
+        color: '#EF4444',
+        icon: 'shield',
       },
     ];
 
