@@ -25,6 +25,7 @@
     "@types/react": "19.2.14",
     "@types/pg": "^8.11.3",
     "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.5",
     "typescript": "5.9.3"
   }
 }
