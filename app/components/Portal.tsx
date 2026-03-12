@@ -323,12 +323,28 @@ function AppCard({ app, delay, onLaunch, lastRun }: AppCardProps) {
           fontSize: 16,
           fontWeight: 600,
           color: T.textPri,
-          marginBottom: 6,
+          marginBottom: 2,
           letterSpacing: '-0.01em',
         }}
       >
         {app.name}
       </h3>
+
+      {app.fullName && app.fullName !== app.name && (
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 500,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: app.color,
+            marginBottom: 8,
+            opacity: 0.8,
+          }}
+        >
+          {app.fullName}
+        </div>
+      )}
 
       <p
         style={{
@@ -337,7 +353,7 @@ function AppCard({ app, delay, onLaunch, lastRun }: AppCardProps) {
           color: T.textSec,
           marginBottom: 14,
           lineHeight: 1.6,
-          minHeight: 52,
+          minHeight: 42,
         }}
       >
         {app.description}

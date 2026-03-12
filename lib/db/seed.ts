@@ -97,8 +97,8 @@ async function seedApps() {
     {
       id: 'xrl',
       name: 'xRL Compass',
-      full: 'xRL Compass',
-      desc: 'Advanced red team and adversarial analysis platform.',
+      full: 'Technology Assessment Intelligence',
+      desc: 'Structured evaluation of emerging technologies against strategic and operational criteria.',
       status: 'active',
       url: 'https://compass.analyticarmory.com/',
       color: '#EF4444',
@@ -106,13 +106,33 @@ async function seedApps() {
     },
     {
       id: 'trizoning',
-      name: 'TriZoning',
-      full: 'TriZoning Consensus Framework',
-      desc: 'Three-zone analytical consensus building and debate resolution.',
+      name: 'TRIZoning',
+      full: 'Technology Dependency Mapping',
+      desc: 'Identifies cascade risks between tech domains before they manifest as strategic surprises.',
       status: 'under_development',
       url: '#',
       color: '#EC4899',
       icon: 'network',
+    },
+    {
+      id: 'agent-sourcing',
+      name: 'Agent Sourcing',
+      full: 'Probabilistic Assessment Engine',
+      desc: 'Multiple AI models plus invited human experts generate calibrated forecasts.',
+      status: 'under_development',
+      url: '#',
+      color: '#F59E0B',
+      icon: 'barchart',
+    },
+    {
+      id: 'tech-radar',
+      name: 'Tech Radar',
+      full: 'Emerging Technology Early Warning',
+      desc: 'Continuous identification of high-signal trends with structured opportunity and risk assessments.',
+      status: 'under_development',
+      url: '#',
+      color: '#10B981',
+      icon: 'radio',
     },
   ];
 
@@ -229,7 +249,7 @@ async function seedDemoSessions() {
       hours_ago: 2,
     },
     {
-      app_id: 'compass',
+      app_id: 'xrl',
       topic: 'East Asia regional power analysis',
       hours_ago: 4,
     },
@@ -237,16 +257,6 @@ async function seedDemoSessions() {
       app_id: 'dios',
       topic: 'Russia sanctions impact assessment',
       hours_ago: 6,
-    },
-    {
-      app_id: 'spycraft',
-      topic: 'Source validation and tradecraft review',
-      hours_ago: 8,
-    },
-    {
-      app_id: 'forecasting',
-      topic: 'Election outcome probability modeling',
-      hours_ago: 12,
     },
   ];
 
