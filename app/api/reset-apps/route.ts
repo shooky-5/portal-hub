@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     // Delete all existing apps
     await query('DELETE FROM apps');
 
-    // Insert the 3 apps
+    // Insert the apps
     const apps = [
       {
         id: 'dios',
@@ -44,6 +44,26 @@ export async function POST(request: NextRequest) {
         color: '#EC4899',
         icon: 'network',
       },
+      {
+        id: 'forecasting',
+        name: 'Forecasting',
+        full: 'Structured Forecasting Engine',
+        desc: 'Probabilistic forecasting with structured reasoning and confidence metrics.',
+        status: 'under_development',
+        url: '#',
+        color: '#F59E0B',
+        icon: 'barchart',
+      },
+      {
+        id: 'spycraft',
+        name: 'Spycraft',
+        full: 'Spycraft Collection Manager',
+        desc: 'Intelligence source management and tradecraft documentation.',
+        status: 'under_development',
+        url: '#',
+        color: '#10B981',
+        icon: 'radio',
+      },
     ];
 
     for (const app of apps) {
@@ -69,7 +89,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: 'Apps reset to DIOS, xRL Compass, and TriZoning',
+        message: 'Apps reset: DIOS & xRL Compass (Active), TriZoning, Forecasting, Spycraft (Under Development)',
       },
       { status: 200 }
     );
