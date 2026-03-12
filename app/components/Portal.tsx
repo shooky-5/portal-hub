@@ -894,12 +894,22 @@ const NAV = [
 ];
 
 export function PortalApp() {
-  const { currentUser, isLoading, isAuthenticated, logout } = useAuth();
+  const { currentUser, isLoading, isAuthenticated, logout, login, error: authError } = useAuth();
   const [isDark, setIsDark] = useState(false);
   const [activeNav, setActiveNav] = useState<'armory' | 'sessions' | 'status' | 'settings'>('armory');
+  const [loginAttempt, setLoginAttempt] = useState(false);
 
   const T = isDark ? THEMES.dark : THEMES.light;
   const toggle = () => setIsDark((d) => !d);
+
+  const handleLogin = async () => {
+    setLoginAttempt(true);
+    try {
+      await login('demo@armory.gov');
+    } catch (err) {
+      console.error('Login failed:', err);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -929,10 +939,64 @@ export function PortalApp() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 24,
           color: T.textSec,
+          padding: '40px',
         }}
       >
-        Authentication failed. Please refresh the page.
+        <div style={{ textAlign: 'center', maxWidth: 400 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 600, color: T.textPri, marginBottom: 12 }}>
+            Analytic Armory Portal
+          </h1>
+          <p style={{ fontSize: 14, color: T.textSec, marginBottom: 24 }}>
+            Decision Intelligence Platform
+          </p>
+
+          {authError && (
+            <div
+              style={{
+                background: `${T.error}20`,
+                border: `1px solid ${T.error}`,
+                borderRadius: 6,
+                padding: 12,
+                marginBottom: 20,
+                fontSize: 13,
+                color: T.error,
+              }}
+            >
+              {authError}
+            </div>
+          )}
+
+          <button
+            onClick={handleLogin}
+            disabled={loginAttempt}
+            style={{
+              width: '100%',
+              padding: '12px 24px',
+              background: T.accent,
+              color: '#FFF',
+              border: 'none',
+              borderRadius: 6,
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: loginAttempt ? 'not-allowed' : 'pointer',
+              opacity: loginAttempt ? 0.7 : 1,
+              transition: 'all 200ms ease-in-out',
+            }}
+            onMouseEnter={(e) => {
+              if (!loginAttempt) {
+                (e.target as HTMLButtonElement).style.background = T.accentHov;
+              }
+            }}
+            onMouseLeave={(e) => {
+              (e.target as HTMLButtonElement).style.background = T.accent;
+            }}
+          >
+            {loginAttempt ? 'Signing In...' : 'Sign In as Demo User'}
+          </button>
+        </div>
       </div>
     );
   }
