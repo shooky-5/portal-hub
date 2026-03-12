@@ -26,7 +26,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const result = await query('SELECT * FROM apps ORDER BY status DESC, name ASC');
+    const result = await query(
+      `SELECT * FROM apps ORDER BY
+        CASE
+          WHEN status = 'under_development' THEN 0
+          WHEN status = 'active' THEN 1
+          ELSE 2
+        END ASC,
+        CASE
+          WHEN id = 'trizoning' THEN 0
+          WHEN id = 'forecasting' THEN 1
+          WHEN id = 'spycraft' THEN 2
+          WHEN id = 'dios' THEN 3
+          WHEN id = 'xrl' THEN 4
+          ELSE 999
+        END ASC`
+    );
 
     const apps = result.rows.map((app) => ({
       id: app.id,
