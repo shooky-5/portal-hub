@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useContext, createContext, ReactNode } from 'react';
+import { useState, useEffect, useContext, createContext, ReactNode } from 'react';
 import { useAuth } from '@/app/hooks/useAuth';
 import { useUserSettings } from '@/app/hooks/useUserSettings';
 import { useAppStatus } from '@/app/hooks/useAppStatus';
@@ -758,7 +758,7 @@ function SettingsView() {
   const [message, setMessage] = useState<{type: 'success' | 'error'; text: string} | null>(null);
 
   // Update form when settings load
-  React.useEffect(() => {
+  useEffect(() => {
     if (settings) {
       setFormData({
         fullName: settings.fullName || '',
