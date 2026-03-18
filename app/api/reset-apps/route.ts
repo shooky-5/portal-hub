@@ -53,6 +53,16 @@ const APPS = [
     icon: 'radio',
   },
   {
+    id: 'prophetic',
+    name: 'Prophetic',
+    full: 'Geopolitical Forecasting Engine',
+    desc: 'Multi-agent LLM pipeline that forecasts geopolitical events against prediction market prices with automated scoring.',
+    status: 'active',
+    url: 'https://prophetic.analyticarmory.com',
+    color: '#F97316',
+    icon: 'activity',
+  },
+  {
     id: 'spycraft',
     name: 'Spycraft',
     full: 'Adversarial Scenario Simulation',
