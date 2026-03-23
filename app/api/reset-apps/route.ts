@@ -34,9 +34,9 @@ const APPS = [
   },
   {
     id: 'agent-sourcing',
-    name: 'Agent Sourcing',
-    full: 'Probabilistic Assessment Engine',
-    desc: 'Multiple AI models plus invited human experts generate calibrated forecasts.',
+    name: 'GeoSim',
+    full: 'Multi-Agent Geopolitcal Simultions',
+    desc: 'Hundreds of agents plus invited human expert simulate and generate multiplie scenrios in minutes.',
     status: 'under_development',
     url: '#',
     color: '#F59E0B',
@@ -94,7 +94,7 @@ async function resetApps() {
   console.log('✅ Apps reset successfully');
   return {
     success: true,
-    message: 'Apps reset: DIOS & xRL Compass (Active), TRIZoning, Agent Sourcing, Tech Radar, Spycraft (Under Development)',
+    message: 'Apps reset: DIOS & xRL Compass (Active), TRIZoning, GeoSim, Tech Radar, Spycraft (Under Development)',
     apps: APPS.map((a) => ({ id: a.id, name: a.name, status: a.status })),
   };
 }

@@ -116,9 +116,9 @@ async function seedApps() {
     },
     {
       id: 'agent-sourcing',
-      name: 'Agent Sourcing',
-      full: 'Probabilistic Assessment Engine',
-      desc: 'Multiple AI models plus invited human experts generate calibrated forecasts.',
+      name: 'GeoSim',
+      full: 'Multi-Agent Geopolitcal Simultions',
+      desc: 'Hundreds of agents plus invited human expert simulate and generate multiplie scenrios in minutes.',
       status: 'under_development',
       url: '#',
       color: '#F59E0B',
